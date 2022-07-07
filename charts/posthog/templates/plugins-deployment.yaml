@@ -59,6 +59,10 @@ spec:
       {{- if .Values.plugins.podSecurityContext.enabled }}
       securityContext: {{- omit .Values.plugins.podSecurityContext "enabled" | toYaml | nindent 8 }}
       {{- end }}
+      initContainers:
+      - name: ensure-clickhouse
+        image: curlimages/curl
+        command: ["sh", "-c", "until curl --max-time 5 http://clickhouse-posthog:9000; do echo 'waiting for clickhouse-posthog'; sleep 2; done"]
       containers:
       - name: {{ .Chart.Name }}-plugins
         image: {{ template "posthog.image.fullPath" . }}
