@@ -1168,6 +1168,8 @@ zookeeper:
 clickhouse:
   # -- Whether to install clickhouse. If false, `clickhouse.host` must be set
   enabled: true
+  # -- Whether to install clickhouse Operator (in case you are running another operator)
+  operator: false
   # -- Which namespace to install clickhouse and the `clickhouse-operator` to (defaults to namespace chart is installed to)
   namespace:
   # -- Clickhouse cluster
