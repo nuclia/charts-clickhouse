@@ -191,6 +191,8 @@ Create the name of the service account to use
   {{ .Values.ingress.type }}
 {{- else if .Values.ingress.nginx.enabled -}}
   nginx
+{{- else if .Values.ingress.istio.enabled -}}
+  istio
 {{- else if (eq (.Values.cloud | toString) "gcp") -}}
   clb
 {{- end -}}
