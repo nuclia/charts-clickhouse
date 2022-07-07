@@ -488,6 +488,8 @@ ingress:
   type:
   # -- URL to address your PostHog installation. You will need to set up DNS after installation
   hostname:
+  # -- Make PostHog UI public (vs. keeping it only accessible from within cluster)
+  publicUI: true
   gcp:
     # -- Specifies the name of the global IP address resource to be associated with the google clb
     ip_name: "posthog"
@@ -502,6 +504,12 @@ ingress:
     enabled: false
     # -- Whether to redirect to TLS with nginx ingress.
     redirectToTLS: true
+  # -- Use Istio VirtualService instead of k8s Ingress (changes to Istio Gateway not included in this chart)
+  istio:
+    # -- Whether Istio is enabled
+    enabled: false
+    # -- Istio Gateway that will accept Posthog traffic (to be configured outside this chart)
+    gateway: istio-system/devel-cloud-gateway
   # -- Extra annotations
   annotations: {}
   # -- TLS secret to be used by the ingress.

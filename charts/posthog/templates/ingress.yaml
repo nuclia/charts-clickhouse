@@ -1,6 +1,11 @@
 {{- if .Values.ingress.enabled -}}
+{{- if (eq (include "ingress.type" .) "istio") }}
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+{{- else }}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
+{{- end }}
 metadata:
   name: {{ template "posthog.fullname" . }}
   labels: {{- include "_snippet-metadata-labels-common" . | nindent 4 }}
@@ -31,6 +36,40 @@ metadata:
     {{- end }}
    {{- end }}
 spec:
+  {{- if (eq (include "ingress.type" .) "istio") }}
+  gateways:
+  - {{ .Values.ingress.istio.gateway }}
+  hosts:
+  - {{ .Values.ingress.hostname }}
+  http:
+  - name: analytics-collection-endpoints
+    match:
+    - uri:
+        prefix: /batch
+    - uri:
+        prefix: /capture
+    - uri:
+        prefix: /decide
+    - uri:
+        prefix: /e
+    - uri:
+        prefix: /track
+    - uri:
+        prefix: /s
+    route:
+    - destination:
+        host: {{ template "posthog.fullname" . }}-events
+        port:
+          number: {{ .Values.service.externalPort }}
+  {{- if .Values.ingress.publicUI}}
+  - name: posthog-web-ui
+    route:
+    - destination:
+        host: {{ template "posthog.fullname" . }}-web
+        port:
+          number: {{ .Values.service.externalPort }}
+  {{- end }}
+  {{- else }}
   {{- if or (eq (include "ingress.letsencrypt" .) "true") (or (.Values.ingress.secretName) (.Values.ingress.gcp.secretName)) }}
   tls:
   - hosts:
@@ -51,6 +90,7 @@ spec:
     - http:
   {{- end }}
         paths:
+          {{- if .Values.ingress.publicUI}}
           {{- if (ne (include "ingress.type" .) "clb") }}
           - pathType: Prefix
             path: "/"
@@ -63,6 +103,7 @@ spec:
                 name: {{ template "posthog.fullname" . }}-web
                 port:
                   number: {{ .Values.service.externalPort }}
+          {{- end }}
           {{- if (ne (include "ingress.type" .) "clb") }}
           - pathType: Prefix
             path: "/batch"
@@ -108,7 +149,8 @@ spec:
             path: "/s/*"
             backend: *INGESTION
           {{- end }}
-{{- if .Values.ingress.tls }}
+    {{- if .Values.ingress.tls }}
 {{ toYaml .Values.ingress.tls | indent 4 }}
-{{- end -}}
+    {{- end -}}
+  {{- end }}
 {{- end -}}
