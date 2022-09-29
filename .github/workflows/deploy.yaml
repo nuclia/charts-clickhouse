@@ -1,4 +1,4 @@
-name: deploy helm chart (kspan)
+name: deploy helm chart
 
 on:
   push:
@@ -23,11 +23,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      # Enable tmate debugging of manually-triggered workflows if the input option was provided
-      - name: Setup tmate session
-        uses: mxschmitt/action-tmate@v3
-        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.debug_enabled }}
-
       - name: Set helm package image
         id: version_step
         run: |-
@@ -42,7 +37,12 @@ jobs:
       - name: Install Helm
         uses: azure/setup-helm@v1
         with:
-          version: v3.4.0
+          version: v3.9.4
+
+      # Enable tmate debugging of manually-triggered workflows if the input option was provided
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
+        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.debug_enabled }}
 
       - name: Push helm package
         run: |-
