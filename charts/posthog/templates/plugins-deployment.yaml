@@ -104,10 +104,10 @@ spec:
         {{- toYaml .Values.plugins.env | nindent 8 }}
         {{- end }}
         livenessProbe:
-          exec:
-            command:
-              # Just check that we can at least exec to the container
-              - "true"
+          httpGet:
+            path: /_health
+            port: 6738
+            scheme: HTTP
           failureThreshold: {{ .Values.plugins.livenessProbe.failureThreshold }}
           initialDelaySeconds: {{ .Values.plugins.livenessProbe.initialDelaySeconds }}
           periodSeconds: {{ .Values.plugins.livenessProbe.periodSeconds }}
