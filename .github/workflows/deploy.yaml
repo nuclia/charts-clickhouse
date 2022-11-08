@@ -21,7 +21,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Set helm package image
         id: version_step
@@ -35,9 +35,9 @@ jobs:
           git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
 
       - name: Install Helm
-        uses: azure/setup-helm@v1
+        uses: azure/setup-helm@v3
         with:
-          version: v3.9.4
+          version: v3.10.0
 
       # Enable tmate debugging of manually-triggered workflows if the input option was provided
       - name: Setup tmate session
